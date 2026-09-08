@@ -22,4 +22,3 @@ WHAT YOU GET
 
 This is an independent, community-built integration and is not affiliated
 with or endorsed by SolarAssistant.
-
