@@ -22,3 +22,6 @@ WHAT YOU GET
 
 This is an independent, community-built integration and is not affiliated
 with or endorsed by SolarAssistant.
+
+Built by Claude (Anthropic), an AI assistant, following instructions from
+the app's author.

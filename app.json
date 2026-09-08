@@ -1,6 +1,6 @@
 {
   "id": "org.solarassistant.homey",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "compatibility": ">=12.9.0",
   "sdk": 3,
   "platforms": [
@@ -23,6 +23,10 @@
   },
   "homeyCommunityTopicId": 159254,
   "source": "https://github.com/DrChip666/solarassistant-homey",
+  "support": "https://github.com/DrChip666/solarassistant-homey/issues",
+  "bugs": {
+    "url": "https://github.com/DrChip666/solarassistant-homey/issues"
+  },
   "images": {
     "small": "/assets/images/small.png",
     "large": "/assets/images/large.png",
@@ -174,6 +178,34 @@
           "template": "add_devices"
         }
       ],
+      "repair": [
+        {
+          "id": "login_credentials",
+          "template": "login_credentials",
+          "options": {
+            "title": {
+              "en": "Reconnect to SolarAssistant",
+              "da": "Genforbind til SolarAssistant"
+            },
+            "usernameLabel": {
+              "en": "IP address",
+              "da": "IP-adresse"
+            },
+            "usernamePlaceholder": {
+              "en": "192.168.0.100",
+              "da": "192.168.0.100"
+            },
+            "passwordLabel": {
+              "en": "Device password",
+              "da": "Enhedens adgangskode"
+            },
+            "passwordPlaceholder": {
+              "en": "Password",
+              "da": "Adgangskode"
+            }
+          }
+        }
+      ],
       "settings": [
         {
           "type": "group",
@@ -189,7 +221,8 @@
                 "en": "IP address",
                 "da": "IP-adresse"
               },
-              "value": ""
+              "value": "",
+              "highlight": true
             },
             {
               "id": "password",
@@ -198,7 +231,8 @@
                 "en": "Password",
                 "da": "Adgangskode"
               },
-              "value": ""
+              "value": "",
+              "highlight": true
             },
             {
               "id": "poll_interval",

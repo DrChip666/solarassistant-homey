@@ -78,6 +78,36 @@ class SolarAssistantDriver extends Homey.Driver {
     });
   }
 
+  async onRepair(session, device) {
+    session.setHandler('login', async (data) => {
+      const address = String(data.username || '').trim();
+      const password = data.password || '';
+
+      if (!address) {
+        throw new Error(this.homey.__('pair.missing_address'));
+      }
+
+      const client = new SolarAssistantClient({
+        address,
+        password,
+        homey: this.homey,
+        log: this.log.bind(this),
+      });
+
+      try {
+        await client.testConnection();
+      } catch (err) {
+        this.error('Login during repair failed:', err.message);
+        throw new Error(this.homey.__('pair.connection_failed'));
+      } finally {
+        client.destroy();
+      }
+
+      await device.setSettings({ address, password });
+      return true;
+    });
+  }
+
 }
 
 module.exports = SolarAssistantDriver;
