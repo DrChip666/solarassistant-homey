@@ -1,0 +1,13 @@
+{
+  "pair": {
+    "missing_address": "Udfyld venligst IP-adressen på din SolarAssistant-enhed.",
+    "connection_failed": "Kunne ikke forbinde. Tjek IP-adresse og adgangskode, og at Homey er på samme netværk."
+  },
+  "device": {
+    "connection_error": "Kan ikke få forbindelse til SolarAssistant-enheden."
+  },
+  "flow": {
+    "direction_import": "import",
+    "direction_export": "eksport"
+  }
+}

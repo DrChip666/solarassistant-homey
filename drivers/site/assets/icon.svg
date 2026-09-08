@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <g fill="none" stroke="#000000" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+    <!-- Solar panel, angled with a visible side edge for depth -->
+    <polygon points="14,32 72,20 82,34 24,46"/>
+    <line x1="33" y1="24.5" x2="41" y2="42.5"/>
+    <line x1="52" y1="21" x2="60" y2="39"/>
+    <line x1="19" y1="34.5" x2="77" y2="27"/>
+    <polygon points="24,46 82,34 82,40 24,52" opacity="0.55"/>
+
+    <!-- Connector -->
+    <line x1="50" y1="49" x2="50" y2="55"/>
+
+    <!-- Battery, drawn with a right-side face for dimension -->
+    <rect x="30" y="55" width="34" height="32" rx="4"/>
+    <polygon points="64,55 71,60 71,92 64,87"/>
+    <rect x="41" y="50" width="12" height="5" rx="1.5"/>
+  </g>
+  <polygon points="50,63 42,74 46,74 44,83 53,70 48,70" fill="#000000"/>
+</svg>

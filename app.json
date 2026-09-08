@@ -1,0 +1,392 @@
+{
+  "id": "org.solarassistant.homey",
+  "version": "1.0.5",
+  "compatibility": ">=12.9.0",
+  "sdk": 3,
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "SolarAssistant",
+    "da": "SolarAssistant"
+  },
+  "description": {
+    "en": "Monitor and control your SolarAssistant solar & battery system from Homey.",
+    "da": "Overvåg og styr dit SolarAssistant solcelle- og batterianlæg fra Homey."
+  },
+  "category": [
+    "energy"
+  ],
+  "brandColor": "#F5A623",
+  "author": {
+    "name": "Morten B."
+  },
+  "homeyCommunityTopicId": 159254,
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "capabilities": {
+    "inverter_mode": {
+      "type": "string",
+      "title": {
+        "en": "Inverter mode",
+        "da": "Inverter-tilstand"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": false,
+      "uiComponent": "sensor"
+    }
+  },
+  "drivers": [
+    {
+      "id": "site",
+      "name": {
+        "en": "SolarAssistant site",
+        "da": "SolarAssistant-anlæg"
+      },
+      "class": "sensor",
+      "capabilities": [
+        "measure_power.pv",
+        "measure_power.load",
+        "measure_power.battery",
+        "measure_power.grid",
+        "measure_battery",
+        "meter_power.pv",
+        "meter_power.load",
+        "meter_power.grid_import",
+        "meter_power.grid_export",
+        "meter_power.battery_in",
+        "meter_power.battery_out",
+        "inverter_mode"
+      ],
+      "capabilitiesOptions": {
+        "measure_power.pv": {
+          "title": {
+            "en": "PV power",
+            "da": "PV-effekt"
+          }
+        },
+        "measure_power.load": {
+          "title": {
+            "en": "Load power",
+            "da": "Forbrug"
+          }
+        },
+        "measure_power.battery": {
+          "title": {
+            "en": "Battery power",
+            "da": "Batterieffekt"
+          }
+        },
+        "measure_power.grid": {
+          "title": {
+            "en": "Grid power",
+            "da": "Neteffekt"
+          }
+        },
+        "meter_power.pv": {
+          "title": {
+            "en": "PV energy",
+            "da": "PV-energi"
+          }
+        },
+        "meter_power.load": {
+          "title": {
+            "en": "Load energy",
+            "da": "Forbrugt energi"
+          }
+        },
+        "meter_power.grid_import": {
+          "title": {
+            "en": "Grid import",
+            "da": "Import fra net"
+          }
+        },
+        "meter_power.grid_export": {
+          "title": {
+            "en": "Grid export",
+            "da": "Eksport til net"
+          }
+        },
+        "meter_power.battery_in": {
+          "title": {
+            "en": "Battery charged",
+            "da": "Batteri opladet"
+          }
+        },
+        "meter_power.battery_out": {
+          "title": {
+            "en": "Battery discharged",
+            "da": "Batteri afladet"
+          }
+        }
+      },
+      "energy": {
+        "meterPowerImportedCapability": "meter_power.grid_import",
+        "meterPowerExportedCapability": "meter_power.grid_export",
+        "batteries": [
+          "OTHER"
+        ]
+      },
+      "images": {
+        "small": "/drivers/site/assets/images/small.png",
+        "large": "/drivers/site/assets/images/large.png",
+        "xlarge": "/drivers/site/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "login_credentials",
+          "template": "login_credentials",
+          "options": {
+            "title": {
+              "en": "Connect to SolarAssistant",
+              "da": "Forbind til SolarAssistant"
+            },
+            "usernameLabel": {
+              "en": "IP address",
+              "da": "IP-adresse"
+            },
+            "usernamePlaceholder": {
+              "en": "192.168.0.100",
+              "da": "192.168.0.100"
+            },
+            "passwordLabel": {
+              "en": "Device password",
+              "da": "Enhedens adgangskode"
+            },
+            "passwordPlaceholder": {
+              "en": "Password",
+              "da": "Adgangskode"
+            }
+          }
+        },
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "Connection",
+            "da": "Forbindelse"
+          },
+          "children": [
+            {
+              "id": "address",
+              "type": "text",
+              "label": {
+                "en": "IP address",
+                "da": "IP-adresse"
+              },
+              "value": ""
+            },
+            {
+              "id": "password",
+              "type": "password",
+              "label": {
+                "en": "Password",
+                "da": "Adgangskode"
+              },
+              "value": ""
+            },
+            {
+              "id": "poll_interval",
+              "type": "number",
+              "label": {
+                "en": "Poll interval (seconds)",
+                "da": "Opdateringsinterval (sekunder)"
+              },
+              "value": 5,
+              "min": 5,
+              "max": 300
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "flow": {
+    "triggers": [
+      {
+        "id": "grid_direction_changed",
+        "title": {
+          "en": "Grid direction changed",
+          "da": "Netretning ændret"
+        },
+        "titleFormatted": {
+          "en": "Grid direction changed to [[direction]]",
+          "da": "Netretning ændret til [[direction]]"
+        },
+        "hint": {
+          "en": "Triggers when the site switches between importing and exporting grid power.",
+          "da": "Udløses når anlægget skifter mellem at importere og eksportere strøm fra nettet."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=site"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "direction",
+            "type": "string",
+            "title": {
+              "en": "Direction",
+              "da": "Retning"
+            },
+            "example": {
+              "en": "import",
+              "da": "import"
+            }
+          }
+        ]
+      }
+    ],
+    "conditions": [
+      {
+        "id": "battery_soc_above",
+        "title": {
+          "en": "Battery !{{is|isn't}} above",
+          "da": "Batteri !{{er|er ikke}} over"
+        },
+        "titleFormatted": {
+          "en": "Battery !{{is|isn't}} above [[percentage]] %",
+          "da": "Batteri !{{er|er ikke}} over [[percentage]] %"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=site"
+          },
+          {
+            "type": "number",
+            "name": "percentage",
+            "title": {
+              "en": "Percentage",
+              "da": "Procent"
+            },
+            "min": 0,
+            "max": 100,
+            "step": 1,
+            "placeholder": {
+              "en": "50",
+              "da": "50"
+            }
+          }
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "send_command",
+        "title": {
+          "en": "Send a custom command",
+          "da": "Send en brugerdefineret kommando"
+        },
+        "titleFormatted": {
+          "en": "Send [[topic]] = [[value]]",
+          "da": "Send [[topic]] = [[value]]"
+        },
+        "hint": {
+          "en": "Advanced: write any topic/value pair directly to the inverter, e.g. topic 'inverter_1/output_source_priority' with value 'Utility first'.",
+          "da": "Avanceret: skriv et vilkårligt topic/værdi-par direkte til inverteren, fx topic 'inverter_1/output_source_priority' med værdien 'Utility first'."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=site"
+          },
+          {
+            "type": "text",
+            "name": "topic",
+            "title": {
+              "en": "Topic",
+              "da": "Topic"
+            },
+            "placeholder": {
+              "en": "inverter_1/output_source_priority",
+              "da": "inverter_1/output_source_priority"
+            }
+          },
+          {
+            "type": "text",
+            "name": "value",
+            "title": {
+              "en": "Value",
+              "da": "Værdi"
+            },
+            "placeholder": {
+              "en": "Utility first",
+              "da": "Utility first"
+            }
+          }
+        ]
+      },
+      {
+        "id": "set_output_source_priority",
+        "title": {
+          "en": "Set output source priority",
+          "da": "Skift output source priority"
+        },
+        "titleFormatted": {
+          "en": "Set output source priority to [[priority]]",
+          "da": "Skift output source priority til [[priority]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=site"
+          },
+          {
+            "type": "dropdown",
+            "name": "priority",
+            "title": {
+              "en": "Priority",
+              "da": "Prioritet"
+            },
+            "values": [
+              {
+                "id": "Utility first",
+                "label": {
+                  "en": "Utility first",
+                  "da": "Utility first"
+                }
+              },
+              {
+                "id": "Solar first",
+                "label": {
+                  "en": "Solar first",
+                  "da": "Solar first"
+                }
+              },
+              {
+                "id": "SBU",
+                "label": {
+                  "en": "SBU",
+                  "da": "SBU"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
