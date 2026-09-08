@@ -1,6 +1,6 @@
 {
   "id": "org.solarassistant.homey",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "compatibility": ">=12.9.0",
   "sdk": 3,
   "platforms": [
@@ -22,6 +22,7 @@
     "name": "Morten B."
   },
   "homeyCommunityTopicId": 159254,
+  "source": "https://github.com/DrChip666/solarassistant-homey",
   "images": {
     "small": "/assets/images/small.png",
     "large": "/assets/images/large.png",
@@ -127,9 +128,7 @@
       "energy": {
         "meterPowerImportedCapability": "meter_power.grid_import",
         "meterPowerExportedCapability": "meter_power.grid_export",
-        "batteries": [
-          "OTHER"
-        ]
+        "batteries": ["OTHER"]
       },
       "images": {
         "small": "/drivers/site/assets/images/small.png",
