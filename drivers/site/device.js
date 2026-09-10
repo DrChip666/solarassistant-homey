@@ -22,12 +22,29 @@ const TOPIC_CAPABILITY_MAP = {
 
 const STRING_CAPABILITIES = new Set(['inverter_mode']);
 
+// SolarAssistant's kWh topics are period-to-date (they reset daily/weekly/monthly,
+// depending on the device's own "Reset energy totals" setting), but Homey's Energy
+// dashboard expects meter_power capabilities to be an ever-increasing lifetime total.
+// We therefore accumulate our own running total for these, instead of forwarding
+// SolarAssistant's raw (periodically-resetting) values directly.
+const ENERGY_CAPABILITIES = new Set([
+  'meter_power.pv',
+  'meter_power.load',
+  'meter_power.grid_import',
+  'meter_power.grid_export',
+  'meter_power.battery_in',
+  'meter_power.battery_out',
+]);
+
 class SolarAssistantDevice extends Homey.Device {
 
   async onInit() {
     this.lastGridDirection = null;
     this.reconnectTimer = null;
     this._connecting = false;
+    this._energyStateDirty = false;
+    // { [capability]: { last: number|null, sum: number|null } }, persisted across restarts.
+    this.energyState = this.getStoreValue('energyState') || {};
     await this._connect();
   }
 
@@ -92,6 +109,8 @@ class SolarAssistantDevice extends Homey.Device {
     if (!Array.isArray(metrics)) return;
     this.setAvailable().catch(() => {});
 
+    this._energyStateDirty = false;
+
     for (const metric of metrics) {
       const capability = TOPIC_CAPABILITY_MAP[metric.topic];
       if (!capability || !this.hasCapability(capability)) continue;
@@ -108,8 +127,47 @@ class SolarAssistantDevice extends Homey.Device {
         this._handleGridDirection(value);
       }
 
-      this._setCapabilitySafe(capability, value);
+      if (ENERGY_CAPABILITIES.has(capability)) {
+        this._updateEnergyCapability(capability, value);
+      } else {
+        this._setCapabilitySafe(capability, value);
+      }
     }
+
+    if (this._energyStateDirty) {
+      this.setStoreValue('energyState', this.energyState).catch((err) => {
+        this.error('Could not persist energy accumulator state:', err.message);
+      });
+    }
+  }
+
+  /**
+   * Accumulates a lifetime total from SolarAssistant's period-to-date kWh value,
+   * so Homey's Energy dashboard (which expects an ever-increasing counter) sees a
+   * steadily rising number instead of periodic resets to zero.
+   */
+  _updateEnergyCapability(capability, rawValue) {
+    let state = this.energyState[capability];
+
+    if (!state) {
+      // First reading ever for this capability: start counting from here.
+      state = { last: rawValue, sum: rawValue };
+    } else if (rawValue >= state.last) {
+      // Normal increase within the same period.
+      state.sum += (rawValue - state.last);
+      state.last = rawValue;
+    } else {
+      // The raw value dropped, which means SolarAssistant's period counter reset
+      // (daily/weekly/monthly). Add the new value as the amount collected since
+      // the reset, rather than computing a (negative) delta against the old value.
+      state.sum += rawValue;
+      state.last = rawValue;
+    }
+
+    this.energyState[capability] = state;
+    this._energyStateDirty = true;
+
+    this._setCapabilitySafe(capability, state.sum);
   }
 
   _setCapabilitySafe(capability, value) {
