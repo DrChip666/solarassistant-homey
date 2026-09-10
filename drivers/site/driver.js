@@ -18,11 +18,6 @@ class SolarAssistantDriver extends Homey.Driver {
       .registerRunListener(async (args) => {
         await args.device.sendCommand(args.topic, args.value);
       });
-
-    this.homey.flow.getActionCard('set_output_source_priority')
-      .registerRunListener(async (args) => {
-        await args.device.sendCommand('inverter_1/output_source_priority', args.priority);
-      });
   }
 
   /** Called by device.js when the grid direction switches between import and export. */

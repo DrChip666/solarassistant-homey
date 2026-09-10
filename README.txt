@@ -16,7 +16,6 @@ WHAT YOU GET
 - Flow cards to build your own automations:
   * Trigger when the grid direction switches between import and export.
   * Condition to check if the battery is above a chosen percentage.
-  * Action to change the inverter's output source priority.
   * Advanced action to send any custom topic/value command straight to your
     inverter, for settings not covered by the built-in cards.
 

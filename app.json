@@ -1,6 +1,6 @@
 {
   "id": "org.solarassistant.homey",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "compatibility": ">=12.9.0",
   "sdk": 3,
   "platforms": [
@@ -374,55 +374,6 @@
               "en": "Utility first",
               "da": "Utility first"
             }
-          }
-        ]
-      },
-      {
-        "id": "set_output_source_priority",
-        "title": {
-          "en": "Set output source priority",
-          "da": "Skift output source priority"
-        },
-        "titleFormatted": {
-          "en": "Set output source priority to [[priority]]",
-          "da": "Skift output source priority til [[priority]]"
-        },
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=site"
-          },
-          {
-            "type": "dropdown",
-            "name": "priority",
-            "title": {
-              "en": "Priority",
-              "da": "Prioritet"
-            },
-            "values": [
-              {
-                "id": "Utility first",
-                "label": {
-                  "en": "Utility first",
-                  "da": "Utility first"
-                }
-              },
-              {
-                "id": "Solar first",
-                "label": {
-                  "en": "Solar first",
-                  "da": "Solar first"
-                }
-              },
-              {
-                "id": "SBU",
-                "label": {
-                  "en": "SBU",
-                  "da": "SBU"
-                }
-              }
-            ]
           }
         ]
       }
