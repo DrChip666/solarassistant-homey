@@ -1,7 +1,8 @@
 {
   "pair": {
     "missing_address": "Udfyld venligst IP-adressen på din SolarAssistant-enhed.",
-    "connection_failed": "Kunne ikke forbinde. Tjek IP-adresse og adgangskode, og at Homey er på samme netværk."
+    "connection_failed": "Kunne ikke forbinde. Tjek IP-adresse og adgangskode, og at Homey er på samme netværk.",
+    "no_devices_found": "Der blev ikke automatisk fundet en SolarAssistant-enhed. Udfyld venligst IP-adressen manuelt."
   },
   "device": {
     "connection_error": "Kan ikke få forbindelse til SolarAssistant-enheden."

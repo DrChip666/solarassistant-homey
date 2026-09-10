@@ -1,7 +1,8 @@
 {
   "pair": {
     "missing_address": "Please fill in the IP address of your SolarAssistant device.",
-    "connection_failed": "Could not connect. Check the IP address and password and make sure Homey is on the same network."
+    "connection_failed": "Could not connect. Check the IP address and password and make sure Homey is on the same network.",
+    "no_devices_found": "No SolarAssistant device was found automatically. Please fill in the IP address manually."
   },
   "device": {
     "connection_error": "Cannot reach the SolarAssistant device."

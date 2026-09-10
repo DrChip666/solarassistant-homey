@@ -27,53 +27,64 @@ class SolarAssistantDevice extends Homey.Device {
   async onInit() {
     this.lastGridDirection = null;
     this.reconnectTimer = null;
+    this._connecting = false;
     await this._connect();
   }
 
   async _connect() {
-    const settings = this.getSettings();
-
-    if (this.client) {
-      this.client.destroy();
-      this.client = null;
-    }
-
-    this.client = new SolarAssistantClient({
-      address: settings.address,
-      password: settings.password,
-      token: settings.token,
-      homey: this.homey,
-      log: (...args) => this.log(...args),
-    });
-
-    this.client.on('metrics', (metrics) => this._handleMetrics(metrics));
-
-    this.client.on('connected', () => {
-      this.setAvailable().catch(() => {});
-      // Websocket is working, so we can stop polling as frequently.
-      this.client.stopPolling();
-    });
-
-    this.client.on('disconnected', () => {
-      this.log('SolarAssistant websocket closed, falling back to polling');
-      this.client.startPolling(settings.poll_interval || 5);
-    });
-
-    this.client.on('error', (err) => {
-      this.error('SolarAssistant error:', err && err.message ? err.message : err);
-    });
+    // Guard against overlapping calls - e.g. onInit() and onDiscoveryAvailable()
+    // can both fire around startup and would otherwise open duplicate connections.
+    if (this._connecting) return;
+    this._connecting = true;
 
     try {
-      await this.client.testConnection();
-      await this.setAvailable();
-      this.client.connectWebSocket();
-      // Poll until the websocket confirms the connection (and as a safety net afterwards).
-      this.client.startPolling(settings.poll_interval || 5);
-    } catch (err) {
-      this.error('Could not connect to SolarAssistant:', err.message);
-      await this.setUnavailable(this.homey.__('device.connection_error')).catch(() => {});
-      // Keep retrying periodically even if the first attempt failed.
-      this.client.startPolling(settings.poll_interval || 5);
+      const settings = this.getSettings();
+      const password = this.getStoreValue('password');
+
+      if (this.client) {
+        this.client.destroy();
+        this.client = null;
+      }
+
+      this.client = new SolarAssistantClient({
+        address: settings.address,
+        password,
+        token: settings.token,
+        homey: this.homey,
+        log: (...args) => this.log(...args),
+      });
+
+      this.client.on('metrics', (metrics) => this._handleMetrics(metrics));
+
+      this.client.on('connected', () => {
+        this.setAvailable().catch(() => {});
+        // Websocket is working, so we can stop polling as frequently.
+        this.client.stopPolling();
+      });
+
+      this.client.on('disconnected', () => {
+        this.log('SolarAssistant websocket closed, falling back to polling');
+        this.client.startPolling(settings.poll_interval || 5);
+      });
+
+      this.client.on('error', (err) => {
+        this.error('SolarAssistant error:', err && err.message ? err.message : err);
+      });
+
+      try {
+        await this.client.testConnection();
+        await this.setAvailable();
+        this.client.connectWebSocket();
+        // Poll until the websocket confirms the connection (and as a safety net afterwards).
+        this.client.startPolling(settings.poll_interval || 5);
+      } catch (err) {
+        this.error('Could not connect to SolarAssistant:', err.message);
+        await this.setUnavailable(this.homey.__('device.connection_error')).catch(() => {});
+        // Keep retrying periodically even if the first attempt failed.
+        this.client.startPolling(settings.poll_interval || 5);
+      }
+    } finally {
+      this._connecting = false;
     }
   }
 
@@ -129,12 +140,38 @@ class SolarAssistantDevice extends Homey.Device {
     return this.client.writeMetric(topic, String(value));
   }
 
-  async onSettings({ newSettings, changedKeys }) {
-    if (changedKeys.includes('address') || changedKeys.includes('password') || changedKeys.includes('poll_interval')) {
+  async onSettings({ changedKeys }) {
+    if (changedKeys.includes('address') || changedKeys.includes('poll_interval')) {
       // Reconnect with the new settings once Homey has saved them.
       if (this.reconnectTimer) this.homey.clearTimeout(this.reconnectTimer);
       this.reconnectTimer = this.homey.setTimeout(() => this._connect(), 500);
     }
+  }
+
+  // --- Discovery: keeps the device's IP address up to date automatically ---
+  // (see https://apps.developer.homey.app/wireless/wi-fi/discovery)
+
+  onDiscoveryResult(discoveryResult) {
+    return discoveryResult.id === this.getData().id;
+  }
+
+  async onDiscoveryAvailable(discoveryResult) {
+    if (discoveryResult.address && discoveryResult.address !== this.getSetting('address')) {
+      await this.setSettings({ address: discoveryResult.address });
+    }
+    await this._connect();
+  }
+
+  onDiscoveryAddressChanged(discoveryResult) {
+    this.log('SolarAssistant device found at a new address:', discoveryResult.address);
+    this.setSettings({ address: discoveryResult.address })
+      .then(() => this._connect())
+      .catch((err) => this.error('Could not update address after discovery change:', err.message));
+  }
+
+  onDiscoveryLastSeenChanged() {
+    // The device was found again on the network - try reconnecting in case it was offline.
+    this._connect().catch((err) => this.error('Reconnect after rediscovery failed:', err.message));
   }
 
   async onDeleted() {

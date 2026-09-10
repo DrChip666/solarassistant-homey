@@ -1,6 +1,6 @@
 {
   "id": "org.solarassistant.homey",
-  "version": "1.0.7",
+  "version": "1.0.11",
   "compatibility": ">=12.9.0",
   "sdk": 3,
   "platforms": [
@@ -27,6 +27,25 @@
   "bugs": {
     "url": "https://github.com/DrChip666/solarassistant-homey/issues"
   },
+  "discovery": {
+    "solarassistant_sbc": {
+      "type": "mac",
+      "mac": {
+        "manufacturer": [
+          [184, 39, 235],
+          [220, 166, 50],
+          [228, 95, 1],
+          [40, 205, 193],
+          [216, 58, 221],
+          [136, 162, 158],
+          [152, 254, 84],
+          [44, 207, 103],
+          [192, 116, 43],
+          [16, 98, 14]
+        ]
+      }
+    }
+  },
   "images": {
     "small": "/assets/images/small.png",
     "large": "/assets/images/large.png",
@@ -48,6 +67,7 @@
   "drivers": [
     {
       "id": "site",
+      "discovery": "solarassistant_sbc",
       "name": {
         "en": "SolarAssistant site",
         "da": "SolarAssistant-anlæg"
@@ -149,8 +169,8 @@
               "da": "Forbind til SolarAssistant"
             },
             "usernameLabel": {
-              "en": "IP address",
-              "da": "IP-adresse"
+              "en": "IP address (leave blank to auto-detect)",
+              "da": "IP-adresse (lad stå tom for automatisk søgning)"
             },
             "usernamePlaceholder": {
               "en": "192.168.0.100",
@@ -225,16 +245,6 @@
               "highlight": true
             },
             {
-              "id": "password",
-              "type": "password",
-              "label": {
-                "en": "Password",
-                "da": "Adgangskode"
-              },
-              "value": "",
-              "highlight": true
-            },
-            {
               "id": "poll_interval",
               "type": "number",
               "label": {
@@ -258,13 +268,9 @@
           "en": "Grid direction changed",
           "da": "Netretning ændret"
         },
-        "titleFormatted": {
-          "en": "Grid direction changed to [[direction]]",
-          "da": "Netretning ændret til [[direction]]"
-        },
         "hint": {
-          "en": "Triggers when the site switches between importing and exporting grid power.",
-          "da": "Udløses når anlægget skifter mellem at importere og eksportere strøm fra nettet."
+          "en": "Triggers when the site switches between importing and exporting grid power. Use the Direction tag in a following card to show whether it started importing or exporting.",
+          "da": "Udløses når anlægget skifter mellem at importere og eksportere strøm fra nettet. Brug Retning-tagget i et efterfølgende kort for at vise om det blev import eller eksport."
         },
         "args": [
           {

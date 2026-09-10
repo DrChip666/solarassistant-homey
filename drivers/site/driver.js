@@ -32,50 +32,91 @@ class SolarAssistantDriver extends Homey.Driver {
   }
 
   async onPair(session) {
-    let address = '';
-    let password = '';
+    // Devices confirmed to be a real SolarAssistant unit during this pairing session.
+    let foundDevices = [];
 
     session.setHandler('login', async (data) => {
-      address = String(data.username || '').trim();
-      password = data.password || '';
+      const manualAddress = String(data.username || '').trim();
+      const password = data.password || '';
+      foundDevices = [];
 
-      if (!address) {
-        throw new Error(this.homey.__('pair.missing_address'));
-      }
+      if (manualAddress) {
+        // Manual override: the user filled in an IP address themselves.
+        const client = new SolarAssistantClient({
+          address: manualAddress,
+          password,
+          homey: this.homey,
+          log: this.log.bind(this),
+        });
 
-      const client = new SolarAssistantClient({
-        address,
-        password,
-        homey: this.homey,
-        log: this.log.bind(this),
-      });
+        try {
+          await client.testConnection();
+        } catch (err) {
+          this.error('Manual login failed:', err.message);
+          throw new Error(this.homey.__('pair.connection_failed'));
+        } finally {
+          client.destroy();
+        }
 
-      try {
-        await client.testConnection();
-        return true;
-      } catch (err) {
-        this.error('Login during pairing failed:', err.message);
-        throw new Error(this.homey.__('pair.connection_failed'));
-      } finally {
-        client.destroy();
-      }
-    });
-
-    session.setHandler('list_devices', async () => {
-      return [
-        {
-          name: `SolarAssistant (${address})`,
+        foundDevices.push({
+          name: `SolarAssistant (${manualAddress})`,
           data: {
-            id: address.replace(/[^a-zA-Z0-9]/g, '_') || `site_${Date.now()}`,
+            id: manualAddress.replace(/[^a-zA-Z0-9]/g, '_') || `site_${Date.now()}`,
           },
           settings: {
-            address,
-            password,
+            address: manualAddress,
             poll_interval: 5,
           },
-        },
-      ];
+          store: {
+            password,
+          },
+        });
+
+        return true;
+      }
+
+      // Auto-detect: test every discovered Raspberry Pi on the network with the given password.
+      const discoveryStrategy = this.getDiscoveryStrategy();
+      const discoveryResults = Object.values(discoveryStrategy.getDiscoveryResults());
+
+      for (const result of discoveryResults) {
+        const client = new SolarAssistantClient({
+          address: result.address,
+          password,
+          homey: this.homey,
+          log: this.log.bind(this),
+        });
+
+        try {
+          await client.testConnection();
+          foundDevices.push({
+            name: `SolarAssistant (${result.address})`,
+            data: {
+              id: result.id,
+            },
+            settings: {
+              address: result.address,
+              poll_interval: 5,
+            },
+            store: {
+              password,
+            },
+          });
+        } catch (err) {
+          // Not a SolarAssistant device, or the password did not match - skip it silently.
+        } finally {
+          client.destroy();
+        }
+      }
+
+      if (foundDevices.length === 0) {
+        throw new Error(this.homey.__('pair.no_devices_found'));
+      }
+
+      return true;
     });
+
+    session.setHandler('list_devices', async () => foundDevices);
   }
 
   async onRepair(session, device) {
@@ -103,7 +144,8 @@ class SolarAssistantDriver extends Homey.Driver {
         client.destroy();
       }
 
-      await device.setSettings({ address, password });
+      await device.setStoreValue('password', password);
+      await device.setSettings({ address });
       return true;
     });
   }

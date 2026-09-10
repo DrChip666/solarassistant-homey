@@ -1,6 +1,6 @@
 {
   "name": "org.solarassistant.homey",
-  "version": "1.0.7",
+  "version": "1.0.11",
   "private": true,
   "main": "app.js",
   "description": "Homey app til SolarAssistant"
