@@ -3,7 +3,8 @@ SolarAssistant brings your solar and battery system straight into Homey.
 If you run a SolarAssistant device (the popular Raspberry Pi based monitoring
 box for MPP Solar, Deye, Sol-Ark, Growatt, Voltronic and many other inverter
 brands) on your local network, this app connects to it directly - no cloud
-account required.
+account required. Before adding the device, set a local password on the
+SolarAssistant unit (this is separate from your solar-assistant.io login).
 
 WHAT YOU GET
 

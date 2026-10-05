@@ -2,7 +2,11 @@
   "pair": {
     "missing_address": "Udfyld venligst IP-adressen på din SolarAssistant-enhed.",
     "connection_failed": "Kunne ikke forbinde. Tjek IP-adresse og adgangskode, og at Homey er på samme netværk.",
-    "no_devices_found": "Der blev ikke automatisk fundet en SolarAssistant-enhed. Udfyld venligst IP-adressen manuelt."
+    "no_devices_found": "Der blev ikke automatisk fundet en SolarAssistant-enhed. Udfyld venligst IP-adressen manuelt.",
+    "password_rejected": "Adgangskoden blev afvist. Skriv den lokale adgangskode, der er sat på SolarAssistant-enheden (ikke dit solar-assistant.io-login). Har du ikke sat en endnu, skal det gøres først.",
+    "unreachable": "Kan ikke nå SolarAssistant-enheden på den adresse. Tjek IP-adressen, og at Homey er på samme netværk.",
+    "unexpected_response": "Den adresse svarede ikke som en SolarAssistant-enhed. Tjek IP-adressen, og at der er sat en lokal adgangskode på enheden.",
+    "found_but_rejected": "Der blev fundet en enhed på netværket, men adgangskoden blev afvist. Skriv den lokale adgangskode, der er sat på SolarAssistant-enheden (ikke dit solar-assistant.io-login), eller udfyld IP-adressen manuelt."
   },
   "device": {
     "connection_error": "Kan ikke få forbindelse til SolarAssistant-enheden."

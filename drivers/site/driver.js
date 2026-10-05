@@ -26,6 +26,16 @@ class SolarAssistantDriver extends Homey.Driver {
       .catch((err) => this.error('Failed to trigger grid_direction_changed:', err.message));
   }
 
+  /** Pairing/repair message that says what went wrong, based on the error from testConnection(). */
+  _loginErrorMessage(err) {
+    switch (err && err.reason) {
+      case 'auth': return this.homey.__('pair.password_rejected');
+      case 'unreachable': return this.homey.__('pair.unreachable');
+      case 'unexpected': return this.homey.__('pair.unexpected_response');
+      default: return this.homey.__('pair.connection_failed');
+    }
+  }
+
   async onPair(session) {
     // Devices confirmed to be a real SolarAssistant unit during this pairing session.
     let foundDevices = [];
@@ -48,7 +58,7 @@ class SolarAssistantDriver extends Homey.Driver {
           await client.testConnection();
         } catch (err) {
           this.error('Manual login failed:', err.message);
-          throw new Error(this.homey.__('pair.connection_failed'));
+          throw new Error(this._loginErrorMessage(err));
         } finally {
           client.destroy();
         }
@@ -73,6 +83,7 @@ class SolarAssistantDriver extends Homey.Driver {
       // Auto-detect: test every discovered Raspberry Pi on the network with the given password.
       const discoveryStrategy = this.getDiscoveryStrategy();
       const discoveryResults = Object.values(discoveryStrategy.getDiscoveryResults());
+      let passwordRejected = false;
 
       for (const result of discoveryResults) {
         const client = new SolarAssistantClient({
@@ -98,14 +109,16 @@ class SolarAssistantDriver extends Homey.Driver {
             },
           });
         } catch (err) {
-          // Not a SolarAssistant device, or the password did not match - skip it silently.
+          // Not a SolarAssistant device, or the password did not match - skip it.
+          if (err && err.reason === 'auth') passwordRejected = true;
         } finally {
           client.destroy();
         }
       }
 
       if (foundDevices.length === 0) {
-        throw new Error(this.homey.__('pair.no_devices_found'));
+        // A device that answers but rejects the password is a different problem from finding nothing.
+        throw new Error(this.homey.__(passwordRejected ? 'pair.found_but_rejected' : 'pair.no_devices_found'));
       }
 
       return true;
@@ -134,7 +147,7 @@ class SolarAssistantDriver extends Homey.Driver {
         await client.testConnection();
       } catch (err) {
         this.error('Login during repair failed:', err.message);
-        throw new Error(this.homey.__('pair.connection_failed'));
+        throw new Error(this._loginErrorMessage(err));
       } finally {
         client.destroy();
       }
