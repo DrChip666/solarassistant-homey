@@ -17,6 +17,8 @@ const TOPIC_CAPABILITY_MAP = {
   'total/grid_energy_out': 'meter_power.grid_export',
   'total/battery_energy_in': 'meter_power.battery_in',
   'total/battery_energy_out': 'meter_power.battery_out',
+  'total/inverter_mode': 'inverter_mode',
+  // Fallback for units that do not publish total/inverter_mode.
   'inverter_1/device_mode': 'inverter_mode',
 };
 
@@ -36,22 +38,43 @@ const ENERGY_CAPABILITIES = new Set([
   'meter_power.battery_out',
 ]);
 
+// The device is marked unavailable when neither a live message nor a REST response
+// has arrived for this long (e.g. power cut, network problem, unit rebooting).
+const STALE_AFTER_MS = 2 * 60 * 1000;
+const WATCHDOG_INTERVAL_MS = 15 * 1000;
+
 class SolarAssistantDevice extends Homey.Device {
 
   async onInit() {
     this.lastGridDirection = null;
     this.reconnectTimer = null;
     this._connecting = false;
+    this._reconnectRequested = false;
     this._energyStateDirty = false;
+    this._seenTotalMode = false;
+    // Homey remembers availability across restarts, so start from the real state.
+    this._unavailable = !this.getAvailable();
+    this._lastDataAt = Date.now();
     // { [capability]: { last: number|null, sum: number|null } }, persisted across restarts.
     this.energyState = this.getStoreValue('energyState') || {};
+
+    this._watchdog = this.homey.setInterval(() => this._checkFreshness(), WATCHDOG_INTERVAL_MS);
     await this._connect();
   }
 
-  async _connect() {
-    // Guard against overlapping calls - e.g. onInit() and onDiscoveryAvailable()
-    // can both fire around startup and would otherwise open duplicate connections.
-    if (this._connecting) return;
+  /**
+   * (Re)create the connection to the SolarAssistant unit.
+   * @param {object} [options]
+   * @param {boolean} [options.force] Used for changed settings: if a connection attempt is
+   *   already running, run another one afterwards instead of skipping the request.
+   */
+  async _connect({ force = false } = {}) {
+    // Guard against overlapping calls - e.g. onInit() and a discovery callback can both
+    // fire around startup and would otherwise open duplicate connections.
+    if (this._connecting) {
+      if (force) this._reconnectRequested = true;
+      return;
+    }
     this._connecting = true;
 
     try {
@@ -63,55 +86,89 @@ class SolarAssistantDevice extends Homey.Device {
         this.client = null;
       }
 
-      this.client = new SolarAssistantClient({
+      const client = new SolarAssistantClient({
         address: settings.address,
         password,
         token: settings.token,
+        preferredWsPath: this.getStoreValue('wsPath'),
         homey: this.homey,
         log: (...args) => this.log(...args),
       });
+      this.client = client;
 
-      this.client.on('metrics', (metrics) => this._handleMetrics(metrics));
-
-      this.client.on('connected', () => {
-        this.setAvailable().catch(() => {});
-        // Websocket is working, so we can stop polling as frequently.
-        this.client.stopPolling();
+      client.on('metrics', (metrics) => this._handleMetrics(metrics));
+      client.on('alive', () => this._markAlive());
+      client.on('wspath', (path) => {
+        // Remember which websocket path this unit's firmware uses.
+        this.setStoreValue('wsPath', path).catch((err) => {
+          this.error('Could not store websocket path:', err.message);
+        });
       });
-
-      this.client.on('disconnected', () => {
-        this.log('SolarAssistant websocket closed, falling back to polling');
-        this.client.startPolling(settings.poll_interval || 5);
-      });
-
-      this.client.on('error', (err) => {
+      client.on('error', (err) => {
         this.error('SolarAssistant error:', err && err.message ? err.message : err);
       });
 
       try {
-        await this.client.testConnection();
-        await this.setAvailable();
-        this.client.connectWebSocket();
-        // Poll until the websocket confirms the connection (and as a safety net afterwards).
-        this.client.startPolling(settings.poll_interval || 5);
+        await client.testConnection();
+        this._markAlive();
       } catch (err) {
         this.error('Could not connect to SolarAssistant:', err.message);
-        await this.setUnavailable(this.homey.__('device.connection_error')).catch(() => {});
-        // Keep retrying periodically even if the first attempt failed.
-        this.client.startPolling(settings.poll_interval || 5);
+        this._markUnavailable();
       }
+
+      // Starts polling and the websocket. Polling keeps retrying even if the first attempt failed.
+      await client.start(settings.poll_interval || 5);
     } finally {
       this._connecting = false;
     }
+
+    if (this._reconnectRequested) {
+      this._reconnectRequested = false;
+      await this._connect();
+    }
   }
+
+  // --- Availability --------------------------------------------------------
+
+  _markAlive() {
+    this._lastDataAt = Date.now();
+    if (this._unavailable) {
+      this._unavailable = false;
+      this.setAvailable().catch((err) => {
+        this.error('Could not mark device available:', err.message);
+      });
+    }
+  }
+
+  _markUnavailable() {
+    if (this._unavailable) return;
+    this._unavailable = true;
+    this.setUnavailable(this.homey.__('device.connection_error')).catch(() => {});
+  }
+
+  _checkFreshness() {
+    if (!this._unavailable && Date.now() - this._lastDataAt > STALE_AFTER_MS) {
+      this.log('No data from SolarAssistant for 2 minutes, marking the device unavailable');
+      this._markUnavailable();
+    }
+  }
+
+  // --- Incoming values -----------------------------------------------------
 
   _handleMetrics(metrics) {
     if (!Array.isArray(metrics)) return;
-    this.setAvailable().catch(() => {});
+
+    // Prefer total/inverter_mode when the unit publishes it (inverter_1/device_mode is the fallback).
+    if (!this._seenTotalMode && metrics.some((m) => m && m.topic === 'total/inverter_mode')) {
+      this._seenTotalMode = true;
+    }
 
     this._energyStateDirty = false;
 
     for (const metric of metrics) {
+      if (!metric) continue;
+      if (metric.topic === 'inverter_1/device_mode' && this._seenTotalMode) continue;
+
       const capability = TOPIC_CAPABILITY_MAP[metric.topic];
       if (!capability || !this.hasCapability(capability)) continue;
 
@@ -202,12 +259,16 @@ class SolarAssistantDevice extends Homey.Device {
     if (changedKeys.includes('address') || changedKeys.includes('poll_interval')) {
       // Reconnect with the new settings once Homey has saved them.
       if (this.reconnectTimer) this.homey.clearTimeout(this.reconnectTimer);
-      this.reconnectTimer = this.homey.setTimeout(() => this._connect(), 500);
+      this.reconnectTimer = this.homey.setTimeout(() => {
+        this._connect({ force: true }).catch((err) => this.error('Reconnect failed:', err.message));
+      }, 500);
     }
   }
 
   // --- Discovery: keeps the device's IP address up to date automatically ---
   // (see https://apps.developer.homey.app/wireless/wi-fi/discovery)
+  // These callbacks must not restart a healthy connection - doing so would keep
+  // tearing down the live websocket every time the discovery timestamps change.
 
   onDiscoveryResult(discoveryResult) {
     return discoveryResult.id === this.getData().id;
@@ -216,23 +277,28 @@ class SolarAssistantDevice extends Homey.Device {
   async onDiscoveryAvailable(discoveryResult) {
     if (discoveryResult.address && discoveryResult.address !== this.getSetting('address')) {
       await this.setSettings({ address: discoveryResult.address });
+      await this._connect({ force: true });
+      return;
     }
-    await this._connect();
+    // onInit() normally connects first; only connect here if that has not happened or the unit is offline.
+    if (!this.client || this._unavailable) await this._connect();
   }
 
   onDiscoveryAddressChanged(discoveryResult) {
     this.log('SolarAssistant device found at a new address:', discoveryResult.address);
     this.setSettings({ address: discoveryResult.address })
-      .then(() => this._connect())
+      .then(() => this._connect({ force: true }))
       .catch((err) => this.error('Could not update address after discovery change:', err.message));
   }
 
   onDiscoveryLastSeenChanged() {
-    // The device was found again on the network - try reconnecting in case it was offline.
+    // The unit was seen on the network again: reconnect only if it was considered offline.
+    if (!this._unavailable) return;
     this._connect().catch((err) => this.error('Reconnect after rediscovery failed:', err.message));
   }
 
   async onDeleted() {
+    if (this._watchdog) this.homey.clearInterval(this._watchdog);
     if (this.reconnectTimer) this.homey.clearTimeout(this.reconnectTimer);
     if (this.client) this.client.destroy();
   }
