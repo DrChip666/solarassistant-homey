@@ -1,6 +1,6 @@
 {
   "id": "org.solarassistant.homey",
-  "version": "1.0.13",
+  "version": "1.0.15",
   "compatibility": ">=12.9.0",
   "sdk": 3,
   "platforms": [
@@ -20,6 +20,13 @@
   "brandColor": "#F5A623",
   "author": {
     "name": "Morten B."
+  },
+  "contributing": {
+    "donate": {
+      "paypal": {
+        "username": "MortenBech241"
+      }
+    }
   },
   "homeyCommunityTopicId": 159254,
   "source": "https://github.com/DrChip666/solarassistant-homey",
@@ -250,6 +257,10 @@
               "label": {
                 "en": "Poll interval (seconds)",
                 "da": "Opdateringsinterval (sekunder)"
+              },
+              "hint": {
+                "en": "How often the app asks SolarAssistant for new values when live updates are not available. It has no effect while live updates are working.",
+                "da": "Hvor ofte appen spørger SolarAssistant om nye værdier, når live-opdateringer ikke er tilgængelige. Har ingen effekt, mens live-opdateringer virker."
               },
               "value": 5,
               "min": 5,
