@@ -65,6 +65,12 @@ homey app install
   - Betingelse: *Batteri er over X %*
   - Handling: *Send en brugerdefineret kommando* (avanceret — skriv ethvert
     topic/værdi-par direkte til inverteren)
+- **Flere enheder:** udover den samlede "overblik"-enhed kan du tilføje separate
+  **Solar**-, **Batteri**- og **Net**-enheder, som Homey Energy forstår (batteriet
+  som hjemmebatteri, nettet som smart meter, solcellerne som produktion).
+  Enhederne deler én forbindelse til din SolarAssistant, og de nye genbruger
+  din eksisterende enhed, så du kun skriver adgangskoden én gang. Ændrer du IP
+  eller adgangskode på én af dem, følger de andre med.
 - Understøtter Homeys Energi-dashboard (net-import/eksport mappes automatisk).
 
 ## Kilder

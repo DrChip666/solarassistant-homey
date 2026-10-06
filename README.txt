@@ -6,6 +6,12 @@ brands) on your local network, this app connects to it directly - no cloud
 account required. Before adding the device, set a local password on the
 SolarAssistant unit (this is separate from your solar-assistant.io login).
 
+You can add your system as one overview device, and also as separate Solar,
+Battery and Grid devices that Homey Energy understands: the battery appears as
+a home battery, the grid device as a smart meter, and the solar device as
+production. The extra devices reuse your existing connection, so you only
+enter the password once.
+
 WHAT YOU GET
 
 - Live readings for PV power, load power, battery power, grid power and

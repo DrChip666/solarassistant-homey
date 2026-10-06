@@ -14,5 +14,11 @@
   "flow": {
     "direction_import": "import",
     "direction_export": "eksport"
+  },
+  "devicename": {
+    "overview": "SolarAssistant",
+    "solar": "SolarAssistant solceller",
+    "battery": "SolarAssistant batteri",
+    "grid": "SolarAssistant net"
   }
 }
