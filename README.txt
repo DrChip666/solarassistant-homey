@@ -1,33 +1,5 @@
-SolarAssistant brings your solar and battery system straight into Homey.
+SolarAssistant brings your solar panels, home battery and grid connection into Homey in real time. The app talks directly to your SolarAssistant unit on your local network, so there is no cloud account to set up, and it works with the many inverter brands SolarAssistant supports.
 
-If you run a SolarAssistant device (the popular Raspberry Pi based monitoring
-box for MPP Solar, Deye, Sol-Ark, Growatt, Voltronic and many other inverter
-brands) on your local network, this app connects to it directly - no cloud
-account required. Before adding the device, set a local password on the
-SolarAssistant unit (this is separate from your solar-assistant.io login).
+Add your system as one overview device, or as separate Solar, Battery and Grid devices that Homey Energy understands, and add any single value your unit provides as a device of its own. Before you start, set a local password on your SolarAssistant unit (this is separate from your online SolarAssistant account).
 
-You can add your system as one overview device, and also as separate Solar,
-Battery and Grid devices that Homey Energy understands: the battery appears as
-a home battery, the grid device as a smart meter, and the solar device as
-production. The extra devices reuse your existing connection, so you only
-enter the password once.
-
-WHAT YOU GET
-
-- Live readings for PV power, load power, battery power, grid power and
-  battery state of charge.
-- Energy totals for PV production, load consumption, grid import/export and
-  battery charge/discharge, fully compatible with Homey's Energy dashboard.
-- Automatic live updates via WebSocket where supported, with automatic
-  fallback to fast polling so your data keeps flowing either way.
-- Flow cards to build your own automations:
-  * Trigger when the grid direction switches between import and export.
-  * Condition to check if the battery is above a chosen percentage.
-  * Advanced action to send any custom topic/value command straight to your
-    inverter, for settings not covered by the built-in cards.
-
-This is an independent, community-built integration and is not affiliated
-with or endorsed by SolarAssistant.
-
-Built by Claude (Anthropic), an AI assistant, following instructions from
-the app's author.
+This is an independent, community-built app and is not affiliated with or endorsed by SolarAssistant. Built by Claude (Anthropic), an AI assistant, following instructions from the app's author.

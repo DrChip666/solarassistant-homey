@@ -71,6 +71,10 @@ homey app install
   Enhederne deler én forbindelse til din SolarAssistant, og de nye genbruger
   din eksisterende enhed, så du kun skriver adgangskoden én gang. Ændrer du IP
   eller adgangskode på én af dem, følger de andre med.
+- **SolarAssistant-værdi:** vælg en vilkårlig måling, tekst eller til/fra-værdi, din
+  enhed kan levere (grupperne Status og Info), fra en liste, og få den som sin egen
+  enhed - fx battericellers spænding, fasestrøm, elpris eller vejr. Skrivebeskyttet og
+  uden for Homey Energy. Værdierne opdateres live via den fælles forbindelse.
 - Understøtter Homeys Energi-dashboard (net-import/eksport mappes automatisk).
 
 ## Kilder

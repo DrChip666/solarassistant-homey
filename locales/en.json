@@ -6,7 +6,8 @@
     "password_rejected": "The password was rejected. Enter the local password set on the SolarAssistant unit (not your solar-assistant.io login). If you have not set one yet, do that first.",
     "unreachable": "Cannot reach the SolarAssistant unit at that address. Check the IP address and that Homey is on the same network.",
     "unexpected_response": "That address did not answer like a SolarAssistant unit. Check the IP address, and make sure a local password has been set on the unit.",
-    "found_but_rejected": "A device was found on the network, but the password was rejected. Enter the local password set on the SolarAssistant unit (not your solar-assistant.io login), or fill in the IP address manually."
+    "found_but_rejected": "A device was found on the network, but the password was rejected. Enter the local password set on the SolarAssistant unit (not your solar-assistant.io login), or fill in the IP address manually.",
+    "no_values": "This SolarAssistant unit has no values to add."
   },
   "device": {
     "connection_error": "Cannot reach the SolarAssistant device."
@@ -20,5 +21,12 @@
     "solar": "SolarAssistant solar",
     "battery": "SolarAssistant battery",
     "grid": "SolarAssistant grid"
+  },
+  "topic": {
+    "total": "Total",
+    "inverter": "Inverter",
+    "battery": "Battery",
+    "grid": "Grid",
+    "weather": "Weather"
   }
 }

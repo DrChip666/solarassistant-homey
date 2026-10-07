@@ -71,7 +71,7 @@ class SolarAssistantApp extends Homey.App {
     if (results.length === 0) return;
 
     for (const device of this.unitDevices()) {
-      const result = results.find((r) => r.id === device.getData().id);
+      const result = results.find((r) => r.id === device.getUnitId());
       if (!result || !result.address) continue;
       try {
         await device.followAddress(result.address);
@@ -99,7 +99,7 @@ class SolarAssistantApp extends Homey.App {
       units.set(address.toLowerCase(), {
         address,
         password: device.getStoreValue('password'),
-        id: device.getData().id,
+        id: device.getUnitId(),
       });
     }
     return [...units.values()];

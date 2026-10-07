@@ -1,6 +1,6 @@
 {
   "id": "org.solarassistant.homey",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "compatibility": ">=12.9.0",
   "sdk": 3,
   "platforms": [
@@ -11,8 +11,8 @@
     "da": "SolarAssistant"
   },
   "description": {
-    "en": "Monitor and control your SolarAssistant solar & battery system from Homey.",
-    "da": "Overvåg og styr dit SolarAssistant solcelle- og batterianlæg fra Homey."
+    "en": "Make the most of every watt your solar system produces",
+    "da": "Få mest muligt ud af hver eneste watt, dit solcelleanlæg producerer"
   },
   "category": [
     "energy"
@@ -109,6 +109,55 @@
       "setable": false,
       "insights": false,
       "uiComponent": "sensor"
+    },
+    "measure_sa_value": {
+      "type": "number",
+      "title": {
+        "en": "Value",
+        "da": "Værdi"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "decimals": 2
+    },
+    "sa_text": {
+      "type": "string",
+      "title": {
+        "en": "Value",
+        "da": "Værdi"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor"
+    },
+    "sa_flag": {
+      "type": "boolean",
+      "title": {
+        "en": "Status",
+        "da": "Status"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor",
+      "titleTrue": {
+        "en": "Yes",
+        "da": "Ja"
+      },
+      "titleFalse": {
+        "en": "No",
+        "da": "Nej"
+      },
+      "insightsTitleTrue": {
+        "en": "Yes",
+        "da": "Ja"
+      },
+      "insightsTitleFalse": {
+        "en": "No",
+        "da": "Nej"
+      }
     }
   },
   "drivers": [
@@ -615,6 +664,129 @@
         "small": "/drivers/grid/assets/images/small.png",
         "large": "/drivers/grid/assets/images/large.png",
         "xlarge": "/drivers/grid/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "loading",
+          "template": "loading"
+        },
+        {
+          "id": "login_credentials",
+          "template": "login_credentials",
+          "options": {
+            "title": {
+              "en": "Connect to SolarAssistant",
+              "da": "Forbind til SolarAssistant"
+            },
+            "usernameLabel": {
+              "en": "IP address (leave blank to auto-detect)",
+              "da": "IP-adresse (lad stå tom for automatisk søgning)"
+            },
+            "usernamePlaceholder": {
+              "en": "192.168.0.100",
+              "da": "192.168.0.100"
+            },
+            "passwordLabel": {
+              "en": "Local device password (not your solar-assistant.io login)",
+              "da": "Lokal adgangskode på enheden (ikke dit solar-assistant.io-login)"
+            },
+            "passwordPlaceholder": {
+              "en": "Password",
+              "da": "Adgangskode"
+            }
+          }
+        },
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "repair": [
+        {
+          "id": "login_credentials",
+          "template": "login_credentials",
+          "options": {
+            "title": {
+              "en": "Reconnect to SolarAssistant",
+              "da": "Genforbind til SolarAssistant"
+            },
+            "usernameLabel": {
+              "en": "IP address",
+              "da": "IP-adresse"
+            },
+            "usernamePlaceholder": {
+              "en": "192.168.0.100",
+              "da": "192.168.0.100"
+            },
+            "passwordLabel": {
+              "en": "Local device password (not your solar-assistant.io login)",
+              "da": "Lokal adgangskode på enheden (ikke dit solar-assistant.io-login)"
+            },
+            "passwordPlaceholder": {
+              "en": "Password",
+              "da": "Adgangskode"
+            }
+          }
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "Connection",
+            "da": "Forbindelse"
+          },
+          "children": [
+            {
+              "id": "address",
+              "type": "text",
+              "label": {
+                "en": "IP address",
+                "da": "IP-adresse"
+              },
+              "value": "",
+              "highlight": true
+            },
+            {
+              "id": "poll_interval",
+              "type": "number",
+              "label": {
+                "en": "Poll interval (seconds)",
+                "da": "Opdateringsinterval (sekunder)"
+              },
+              "hint": {
+                "en": "How often the app asks SolarAssistant for new values when live updates are not available. It has no effect while live updates are working.",
+                "da": "Hvor ofte appen spørger SolarAssistant om nye værdier, når live-opdateringer ikke er tilgængelige. Har ingen effekt, mens live-opdateringer virker."
+              },
+              "value": 5,
+              "min": 5,
+              "max": 300
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "topic",
+      "name": {
+        "en": "SolarAssistant value",
+        "da": "SolarAssistant-værdi"
+      },
+      "class": "sensor",
+      "capabilities": [
+        "measure_sa_value"
+      ],
+      "images": {
+        "small": "/drivers/topic/assets/images/small.png",
+        "large": "/drivers/topic/assets/images/large.png",
+        "xlarge": "/drivers/topic/assets/images/xlarge.png"
       },
       "pair": [
         {
