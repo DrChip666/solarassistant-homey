@@ -1,0 +1,5 @@
+{
+  "1.2.1": {
+    "en": "Added a setting on the Overview device to report the battery level as a plain percentage instead of a battery, so Homey no longer sends low battery warnings for it. Turned on by default, so existing devices and Flows are unchanged."
+  }
+}

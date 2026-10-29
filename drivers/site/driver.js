@@ -13,7 +13,7 @@ class SolarAssistantDriver extends UnitDriver {
 
     this.homey.flow.getConditionCard('battery_soc_above')
       .registerRunListener(async (args) => {
-        const soc = args.device.getCapabilityValue('measure_battery');
+        const soc = args.device.getBatteryLevel();
         return typeof soc === 'number' && soc > args.percentage;
       });
 

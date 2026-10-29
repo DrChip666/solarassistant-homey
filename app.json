@@ -1,6 +1,6 @@
 {
   "id": "org.solarassistant.homey",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "compatibility": ">=12.9.0",
   "sdk": 3,
   "platforms": [
@@ -94,9 +94,9 @@
     }
   },
   "images": {
-    "small": "/assets/images/small.png",
-    "large": "/assets/images/large.png",
-    "xlarge": "/assets/images/xlarge.png"
+    "small": "/assets/images/small.jpg",
+    "large": "/assets/images/large.jpg",
+    "xlarge": "/assets/images/xlarge.jpg"
   },
   "capabilities": {
     "inverter_mode": {
@@ -158,6 +158,23 @@
         "en": "No",
         "da": "Nej"
       }
+    },
+    "measure_sa_battery": {
+      "type": "number",
+      "title": {
+        "en": "Battery",
+        "da": "Batteri"
+      },
+      "units": {
+        "en": "%"
+      },
+      "decimals": 0,
+      "min": 0,
+      "max": 100,
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "uiComponent": "sensor"
     }
   },
   "drivers": [
@@ -355,6 +372,28 @@
               "value": 5,
               "min": 5,
               "max": 300
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Battery",
+            "da": "Batteri"
+          },
+          "children": [
+            {
+              "id": "report_battery",
+              "type": "checkbox",
+              "label": {
+                "en": "Report battery level to Homey as a battery",
+                "da": "Rapportér batteriniveau til Homey som et batteri"
+              },
+              "value": true,
+              "hint": {
+                "en": "Homey warns about a low battery (below about 15 %) for every device that reports a battery level. Turn this off to stop those warnings: the battery level is then shown as a plain percentage. Flows and tags that use this device's battery level stop working when you turn it off.",
+                "da": "Homey advarer om lavt batteri (under cirka 15 %) for alle enheder, der rapporterer et batteriniveau. Slå denne fra for at undgå advarslerne: batteriniveauet vises så som en almindelig procentværdi. Flows og tags, der bruger enhedens batteriniveau, holder op med at virke, når du slår den fra."
+              }
             }
           ]
         }
